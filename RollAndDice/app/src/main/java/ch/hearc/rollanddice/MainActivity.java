@@ -18,10 +18,14 @@ package ch.hearc.rollanddice;
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
     private GLSurfaceView mGLView;
+    private TextView textViewResult;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,8 +33,19 @@ public class MainActivity extends Activity {
 
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
-        mGLView = new MyGLSurfaceView(this);
-        setContentView(mGLView);
+        //mGLView = new MyGLSurfaceView(this);
+       // setContentView(mGLView);
+        setContentView(R.layout.activity_main);
+
+
+        textViewResult = (TextView)findViewById(R.id.textViewResult);
+        Button btnA = (Button)findViewById(R.id.buttonRoll);
+        btnA.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                textViewResult.setText("ok");
+            }
+        });
     }
 
     @Override
@@ -40,7 +55,7 @@ public class MainActivity extends Activity {
         // you should consider de-allocating objects that
         // consume significant memory here.
         super.onPause();
-        mGLView.onPause();
+      //  mGLView.onPause();
     }
 
     @Override
@@ -49,7 +64,7 @@ public class MainActivity extends Activity {
         // If you de-allocated graphic objects for onPause()
         // this is a good place to re-allocate them.
         super.onResume();
-        mGLView.onResume();
+      //  mGLView.onResume();
     }
 
 }

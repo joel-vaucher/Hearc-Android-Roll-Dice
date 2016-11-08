@@ -11,7 +11,133 @@
     tools:context="ch.hearc.rollanddice.MainActivity">
 
     <TextView
+        android:text="d4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="RollAndDice!" />
+        android:layout_marginStart="18dp"
+        android:id="@+id/textViewD4"
+        android:layout_alignBaseline="@+id/editTextD4"
+        android:layout_alignBottom="@+id/editTextD4"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_below="@+id/editTextD4"
+        android:layout_alignStart="@+id/editTextD4"
+        android:id="@+id/editTextD6"
+        android:text="0" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editTextD10"
+        android:text="0"
+        android:layout_below="@+id/editTextD6"
+        android:layout_alignStart="@+id/editTextD6" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_below="@+id/editTextD10"
+        android:layout_alignStart="@+id/editTextD10"
+        android:id="@+id/editTextD20"
+        android:text="0" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_below="@+id/editTextD20"
+        android:layout_alignStart="@+id/editTextD20"
+        android:id="@+id/editTextD100"
+        android:text="0" />
+
+    <TextView
+        android:text="d6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewD6"
+        android:layout_alignBaseline="@+id/editTextD6"
+        android:layout_alignBottom="@+id/editTextD6"
+        android:layout_alignStart="@+id/textViewD4" />
+
+    <TextView
+        android:text="d10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewD10"
+        android:layout_alignBaseline="@+id/editTextD10"
+        android:layout_alignBottom="@+id/editTextD10"
+        android:layout_alignStart="@+id/textViewD6" />
+
+    <TextView
+        android:text="d20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewD20"
+        android:layout_alignBaseline="@+id/editTextD20"
+        android:layout_alignBottom="@+id/editTextD20"
+        android:layout_alignStart="@+id/textViewD10" />
+
+    <TextView
+        android:text="d100"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewD100"
+        android:layout_alignBaseline="@+id/editTextD100"
+        android:layout_alignBottom="@+id/editTextD100"
+        android:layout_alignStart="@+id/textViewD20" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_marginTop="17dp"
+        android:id="@+id/editTextD4"
+        android:text="0"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="42dp" />
+
+    <TextView
+        android:text="Nombre de dés à lancer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewNbDices"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="Type de dé"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewType"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Lancer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextD100"
+        android:layout_alignParentStart="true"
+        android:id="@+id/buttonRoll"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewResult"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

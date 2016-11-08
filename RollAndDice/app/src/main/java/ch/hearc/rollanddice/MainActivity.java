@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import ch.hearc.rollanddice.common.*;
 import ch.hearc.rollanddice.MyGLRenderer;
@@ -14,6 +17,7 @@ public class MainActivity extends Activity
 {
     /** Hold a reference to our GLSurfaceView */
     private GLSurfaceView mGLSurfaceView;
+    private TextView textViewResult;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -42,7 +46,18 @@ public class MainActivity extends Activity
             return;
         }
 
-        setContentView(mGLSurfaceView);
+        //setContentView(mGLSurfaceView);
+        setContentView(R.layout.activity_main);
+
+
+        textViewResult = (TextView)findViewById(R.id.textViewResult);
+        Button btnA = (Button)findViewById(R.id.buttonRoll);
+        btnA.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                textViewResult.setText("ok");
+            }
+        });
     }
 
     @Override

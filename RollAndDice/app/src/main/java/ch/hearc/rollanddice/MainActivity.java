@@ -16,16 +16,31 @@
 package ch.hearc.rollanddice;
 
 import android.app.Activity;
+import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class MainActivity extends Activity {
 
     private GLSurfaceView mGLView;
     private TextView textViewResult;
+    private EditText nbD4;
+    private EditText nbD6;
+    private EditText nbD10;
+    private EditText nbD20;
+    private EditText nbD100;
+    private String textSave;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,13 +54,19 @@ public class MainActivity extends Activity {
 
 
         textViewResult = (TextView)findViewById(R.id.textViewResult);
-        Button btnA = (Button)findViewById(R.id.buttonRoll);
-        btnA.setOnClickListener(new View.OnClickListener(){
+        nbD4 = (EditText)findViewById(R.id.editTextD4);
+        nbD6 = (EditText)findViewById(R.id.editTextD6);
+        nbD10 = (EditText)findViewById(R.id.editTextD10);
+        nbD20 = (EditText)findViewById(R.id.editTextD20);
+        nbD100 = (EditText)findViewById(R.id.editTextD100);
+        Button btnRoll = (Button)findViewById(R.id.buttonRoll);
+        btnRoll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                textViewResult.setText("ok");
+                rollDices();
             }
         });
+        readSave();
     }
 
     @Override
@@ -67,4 +88,96 @@ public class MainActivity extends Activity {
       //  mGLView.onResume();
     }
 
+    protected int readNumber(EditText editText){
+        if(editText.getText().toString() == "")
+            return 0;
+        else
+            return Integer.parseInt(editText.getText().toString());
+    }
+
+    protected void rollDices(){
+        textViewResult.setText("");
+        textSave = "";
+        int total = 0;
+
+        int nbDices = readNumber(nbD4);
+        if(nbDices > 0) {
+            total += rollOneTypeOfDice(4, nbDices);
+        }
+        nbDices = readNumber(nbD6);
+        if(nbDices > 0) {
+            total += rollOneTypeOfDice(6, nbDices);
+        }
+        nbDices = readNumber(nbD10);
+        if(nbDices > 0) {
+            total += rollOneTypeOfDice(10, nbDices);
+        }
+        nbDices = readNumber(nbD20);
+        if(nbDices > 0) {
+            total += rollOneTypeOfDice(20, nbDices);
+        }
+        nbDices = readNumber(nbD100);
+        if(nbDices > 0) {
+            total += rollOneTypeOfDice(100, nbDices);
+        }
+        textSave += total+ "\n";
+
+        textViewResult.setText(textViewResult.getText() + "\nTotal: " + total);
+        saveFile();
+    }
+
+    protected int rollOneTypeOfDice(int nbFaces, int nbDices){
+        String txt = "D" + nbFaces + ": ";
+        textSave += nbFaces + "/";
+        int total = 0;
+        for (int i = 0; i < nbDices; i++) {
+            int result = rollOneDice(nbFaces);
+            total += result;
+            if(i > 0) {
+                txt += ", ";
+                textSave += ",";
+            }
+            textSave += result;
+            txt += result;
+        }
+        textSave += "/" + total + ";";
+
+        txt += "   Total: " + total + "\n";
+        textViewResult.setText(textViewResult.getText() + txt);
+        return total;
+    }
+
+    protected int rollOneDice(int nbFaces){
+        return (int)(Math.random()*nbFaces+1);
+    }
+
+    protected void saveFile(){
+        String filename = "RollAndDiceData";
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_APPEND);
+            outputStream.write(textSave.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void readSave(){
+        File saveFile = new File(getFilesDir(), "RollAndDiceData");
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(saveFile));
+            String line;
+            Log.i("readSave", "ok");
+            while ((line = br.readLine()) != null) {
+                Log.i("readSave", line);
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            Log.i("readSave", "error");
+        }
+    }
 }

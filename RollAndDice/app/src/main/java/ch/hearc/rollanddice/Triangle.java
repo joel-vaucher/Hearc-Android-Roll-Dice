@@ -15,6 +15,9 @@
  */
 package ch.hearc.rollanddice;
 
+import android.opengl.GLES20;
+import android.opengl.Matrix;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -26,60 +29,84 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class Triangle {
 
-    private final FloatBuffer vertexBuffer;
+    private final FloatBuffer mTriangle1Vertices;
 
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 3;
-    static float triangleCoords[] = {
-            // in counterclockwise order:
-            0.0f,  0.622008459f, 0.0f,// top
-           -0.5f, -0.311004243f, 0.0f,// bottom left
-            0.5f, -0.311004243f, 0.0f // bottom right
-    };
+    // This triangle is red, green, and blue.
+    final float[] triangle1VerticesData = {
+            // X, Y, Z,
+            // R, G, B, A
+            -0.5f, -0.25f, 0.0f,
+            1.0f, 0.0f, 0.0f, 1.0f,
 
-    float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 0.0f };
+            0.5f, -0.25f, 0.0f,
+            0.0f, 0.0f, 1.0f, 1.0f,
+
+            0.0f, 0.559016994f, 0.0f,
+            0.0f, 1.0f, 0.0f, 1.0f};
+
+
+
+    // New class members
+    /** Allocate storage for the final combined matrix. This will be passed into the shader program. */
+    private float[] mMVPMatrix = new float[16];
+
+    /** How many elements per vertex. */
+    private final int mBytesPerFloat = 4;
+
+    private final int mStrideBytes = 7 * mBytesPerFloat;
+
+    /** Offset of the position data. */
+    private final int mPositionOffset = 0;
+
+    /** Size of the position data in elements. */
+    private final int mPositionDataSize = 3;
+
+    /** Offset of the color data. */
+    private final int mColorOffset = 3;
+
+    /** Size of the color data in elements. */
+    private final int mColorDataSize = 4;
+
 
     /**
      * Sets up the drawing object data for use in an OpenGL ES context.
      */
     public Triangle() {
-        // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (number of coordinate values * 4 bytes per float)
-                triangleCoords.length * 4);
-        // use the device hardware's native byte order
-        bb.order(ByteOrder.nativeOrder());
-
-        // create a floating point buffer from the ByteBuffer
-        vertexBuffer = bb.asFloatBuffer();
+        mTriangle1Vertices = ByteBuffer.allocateDirect(triangle1VerticesData.length * mBytesPerFloat)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
         // add the coordinates to the FloatBuffer
-        vertexBuffer.put(triangleCoords);
-        // set the buffer to read the first coordinate
-        vertexBuffer.position(0);
+        mTriangle1Vertices.put(triangle1VerticesData).position(0);
     }
 
     /**
      * Encapsulates the OpenGL ES instructions for drawing this shape.
      *
-     * @param gl - The OpenGL ES context in which to draw this shape.
      */
-    public void draw(GL10 gl) {
-        // Since this shape uses vertex arrays, enable them
-        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+    public void draw(int mPositionHandle, int mColorHandle, int mMVPMatrixHandle, float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix) {
+        // Pass in the position information
+        mTriangle1Vertices.position(mPositionOffset);
+        GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false,
+                mStrideBytes, mTriangle1Vertices);
 
-        // draw the shape
-        gl.glColor4f(       // set color:
-                color[0], color[1],
-                color[2], color[3]);
-        gl.glVertexPointer( // point to vertex data:
-                COORDS_PER_VERTEX,
-                GL10.GL_FLOAT, 0, vertexBuffer);
-        gl.glDrawArrays(    // draw shape:
-                GL10.GL_TRIANGLES, 0,
-                triangleCoords.length / COORDS_PER_VERTEX);
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
 
-        // Disable vertex array drawing to avoid
-        // conflicts with shapes that don't use it
-        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+        // Pass in the color information
+        mTriangle1Vertices.position(mColorOffset);
+        GLES20.glVertexAttribPointer(mColorHandle, mColorDataSize, GLES20.GL_FLOAT, false,
+                mStrideBytes, mTriangle1Vertices);
+
+        GLES20.glEnableVertexAttribArray(mColorHandle);
+
+        // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix
+        // (which currently contains model * view).
+        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
+
+        // This multiplies the modelview matrix by the projection matrix, and stores the result in the MVP matrix
+        // (which now contains model * view * projection).
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
+
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
     }
 }

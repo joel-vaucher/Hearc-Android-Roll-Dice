@@ -15,6 +15,9 @@
  */
 package ch.hearc.rollanddice;
 
+import android.opengl.GLES20;
+import android.opengl.Matrix;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -27,92 +30,310 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class Dice6 {
 
-    private final FloatBuffer vertexBuffer;
-    private final FloatBuffer colorBuffer;
-    private final ShortBuffer drawListBuffer;
+    private final FloatBuffer mCubePositions;
+    private final FloatBuffer mCubeColors;
+    private final FloatBuffer mCubeNormals;
+    private final FloatBuffer mCubeTextureCoordinates;
 
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 3;
-    static float squareCoords[] = {
-            -0.25f,  0.25f, 0.25f,   // top left front
-            -0.25f, -0.25f, 0.25f,   // bottom left front
-            0.25f, -0.25f, 0.25f,   // bottom right front
-            0.25f,  0.25f, 0.25f, // top right front
-            -0.25f,  0.25f, -0.25f,   // top left back
-            -0.25f, -0.25f, -0.25f,   // bottom left back
-            0.25f, -0.25f, -0.25f,   // bottom right back
-            0.25f,  0.25f, -0.25f }; // top right back
-
-    private final short drawOrder[] = { 0, 2, 1, 0, 2, 3, //front
-                                        0, 5, 4, 0, 5, 1, //left
-                                        0, 7, 4, 0, 7, 3, //top
-                                        3, 6, 7, 3, 6, 2, //right
-                                        1, 6, 2, 1, 6, 5, //bottom
-                                        4, 6, 5, 4, 6, 7}; // order to draw vertices
-
-    float color[] = { 1.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-                    1.0f, 0.0f, 0.0f, 1.0f,
-                    0.0f, 1.0f, 0.0f, 1.0f,
-                    0.0f, 0.0f, 1.0f, 1.0f};
+    /** How many bytes per float. */
+    private final int mBytesPerFloat = 4;
 
     /**
      * Sets up the drawing object data for use in an OpenGL ES context.
      */
     public Dice6() {
-        // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                squareCoords.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(squareCoords);
-        vertexBuffer.position(0);
+        // Define points for a cube.
 
-        // initialize vertex byte buffer for shape coordinates
-        bb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                color.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        colorBuffer = bb.asFloatBuffer();
-        colorBuffer.put(color);
-        colorBuffer.position(0);
+        // X, Y, Z
+        final float[] cubePositionData =
+                {
+                        // In OpenGL counter-clockwise winding is default. This means that when we look at a triangle,
+                        // if the points are counter-clockwise we are looking at the "front". If not we are looking at
+                        // the back. OpenGL has an optimization where all back-facing triangles are culled, since they
+                        // usually represent the backside of an object and aren't visible anyways.
 
-        // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 2 bytes per short)
-                drawOrder.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer();
-        drawListBuffer.put(drawOrder);
-        drawListBuffer.position(0);
+                        // Front face
+                        -1.0f, 1.0f, 1.0f,
+                        -1.0f, -1.0f, 1.0f,
+                        1.0f, 1.0f, 1.0f,
+                        -1.0f, -1.0f, 1.0f,
+                        1.0f, -1.0f, 1.0f,
+                        1.0f, 1.0f, 1.0f,
+
+                        // Right face
+                        1.0f, 1.0f, 1.0f,
+                        1.0f, -1.0f, 1.0f,
+                        1.0f, 1.0f, -1.0f,
+                        1.0f, -1.0f, 1.0f,
+                        1.0f, -1.0f, -1.0f,
+                        1.0f, 1.0f, -1.0f,
+
+                        // Back face
+                        1.0f, 1.0f, -1.0f,
+                        1.0f, -1.0f, -1.0f,
+                        -1.0f, 1.0f, -1.0f,
+                        1.0f, -1.0f, -1.0f,
+                        -1.0f, -1.0f, -1.0f,
+                        -1.0f, 1.0f, -1.0f,
+
+                        // Left face
+                        -1.0f, 1.0f, -1.0f,
+                        -1.0f, -1.0f, -1.0f,
+                        -1.0f, 1.0f, 1.0f,
+                        -1.0f, -1.0f, -1.0f,
+                        -1.0f, -1.0f, 1.0f,
+                        -1.0f, 1.0f, 1.0f,
+
+                        // Top face
+                        -1.0f, 1.0f, -1.0f,
+                        -1.0f, 1.0f, 1.0f,
+                        1.0f, 1.0f, -1.0f,
+                        -1.0f, 1.0f, 1.0f,
+                        1.0f, 1.0f, 1.0f,
+                        1.0f, 1.0f, -1.0f,
+
+                        // Bottom face
+                        1.0f, -1.0f, -1.0f,
+                        1.0f, -1.0f, 1.0f,
+                        -1.0f, -1.0f, -1.0f,
+                        1.0f, -1.0f, 1.0f,
+                        -1.0f, -1.0f, 1.0f,
+                        -1.0f, -1.0f, -1.0f,
+                };
+
+        // R, G, B, A
+        final float[] cubeColorData =
+                {
+                        // Front face (red)
+                        1.0f, 0.0f, 0.0f, 1.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f,
+
+                        // Right face (green)
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+
+                        // Back face (blue)
+                        0.0f, 0.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,
+
+                        // Left face (yellow)
+                        1.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 0.0f, 1.0f,
+
+                        // Top face (cyan)
+                        0.0f, 1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f,
+
+                        // Bottom face (magenta)
+                        1.0f, 0.0f, 1.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f
+                };
+
+        // X, Y, Z
+        // The normal is used in light calculations and is a vector which points
+        // orthogonal to the plane of the surface. For a cube model, the normals
+        // should be orthogonal to the points of each face.
+        final float[] cubeNormalData =
+                {
+                        // Front face
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+
+                        // Right face
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+
+                        // Back face
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+
+                        // Left face
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+
+                        // Top face
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+
+                        // Bottom face
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f
+                };
+
+        // S, T (or X, Y)
+        // Texture coordinate data.
+        // Because images have a Y axis pointing downward (values increase as you move down the image) while
+        // OpenGL has a Y axis pointing upward, we adjust for that here by flipping the Y axis.
+        // What's more is that the texture coordinates are the same for every face.
+        final float[] cubeTextureCoordinateData =
+                {
+                        // Front face
+                        0.0f, 1.0f,
+                        0.0f, 0.5f,
+                        0.33f, 1.0f,
+                        0.0f, 0.5f,
+                        0.33f, 0.5f,
+                        0.33f, 1.0f,
+
+                        // Right face
+                        0.66f, 1.0f,
+                        0.66f, 0.5f,
+                        1.0f, 1.0f,
+                        0.66f, 0.5f,
+                        1.0f, 0.5f,
+                        1.0f, 1.0f,
+
+                        // Back face
+                        0.0f, 0.5f,
+                        0.0f, 0.0f,
+                        0.33f, 0.5f,
+                        0.0f, 0.0f,
+                        0.33f, 0.0f,
+                        0.33f, 0.5f,
+
+                        // Left face
+                        0.66f, 0.5f,
+                        0.66f, 0.0f,
+                        1.0f, 0.5f,
+                        0.66f, 0.0f,
+                        1.0f, 0.0f,
+                        1.0f, 0.5f,
+
+                        // Top face
+                        0.33f, 1.0f,
+                        0.33f, 0.5f,
+                        0.66f, 1.0f,
+                        0.33f, 0.5f,
+                        0.66f, 0.5f,
+                        0.66f, 1.0f,
+
+                        // Bottom face
+                        0.33f, 0.5f,
+                        0.33f, 0.0f,
+                        0.66f, 0.5f,
+                        0.33f, 0.0f,
+                        0.66f, 0.0f,
+                        0.66f, 0.5f,
+                };
+
+        // Initialize the buffers.
+        mCubePositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mCubePositions.put(cubePositionData).position(0);
+
+        mCubeColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mCubeColors.put(cubeColorData).position(0);
+
+        mCubeNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mCubeNormals.put(cubeNormalData).position(0);
+
+        mCubeTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mCubeTextureCoordinates.put(cubeTextureCoordinateData).position(0);
     }
 
     /**
-     * Encapsulates the OpenGL ES instructions for drawing this shape.
-     *
-     * @param gl - The OpenGL ES context in which to draw this shape.
+     * Draws a cube.
      */
-    public void draw(GL10 gl) {
-        // Since this shape uses vertex arrays, enable them
-        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+    public void drawCube(MyGLRenderer g)
+    {
+        // Pass in the position information
+        mCubePositions.position(0);
+        GLES20.glVertexAttribPointer(g.mPositionHandle, g.mPositionDataSize, GLES20.GL_FLOAT, false,
+                0, mCubePositions);
 
-        // draw the shape
-        gl.glColorPointer(4,GL10.GL_FLOAT,0,colorBuffer);
-        gl.glVertexPointer( // point to vertex data:
-                COORDS_PER_VERTEX,
-                GL10.GL_FLOAT, 0, vertexBuffer);
-        gl.glDrawElements(  // draw shape:
-                GL10.GL_TRIANGLES,
-                drawOrder.length, GL10.GL_UNSIGNED_SHORT,
-                drawListBuffer);
+        GLES20.glEnableVertexAttribArray(g.mPositionHandle);
 
-        // Disable vertex array drawing to avoid
-        // conflicts with shapes that don't use it
-        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+        // Pass in the color information
+        mCubeColors.position(0);
+        GLES20.glVertexAttribPointer(g.mColorHandle, g.mColorDataSize, GLES20.GL_FLOAT, false,
+                0, mCubeColors);
+
+        GLES20.glEnableVertexAttribArray(g.mColorHandle);
+
+        // Pass in the normal information
+        mCubeNormals.position(0);
+        GLES20.glVertexAttribPointer(g.mNormalHandle, g.mNormalDataSize, GLES20.GL_FLOAT, false,
+                0, mCubeNormals);
+
+        GLES20.glEnableVertexAttribArray(g.mNormalHandle);
+
+        // Pass in the texture coordinate information
+        mCubeTextureCoordinates.position(0);
+        GLES20.glVertexAttribPointer(g.mTextureCoordinateHandle, g.mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
+                0, mCubeTextureCoordinates);
+
+        GLES20.glEnableVertexAttribArray(g.mTextureCoordinateHandle);
+
+        // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix
+        // (which currently contains model * view).
+        Matrix.multiplyMM(g.mMVPMatrix, 0, g.mViewMatrix, 0, g.mModelMatrix, 0);
+
+        // Pass in the modelview matrix.
+        GLES20.glUniformMatrix4fv(g.mMVMatrixHandle, 1, false, g.mMVPMatrix, 0);
+
+        // This multiplies the modelview matrix by the projection matrix, and stores the result in the MVP matrix
+        // (which now contains model * view * projection).
+        Matrix.multiplyMM(g.mMVPMatrix, 0, g.mProjectionMatrix, 0, g.mMVPMatrix, 0);
+
+        // Pass in the combined matrix.
+        GLES20.glUniformMatrix4fv(g.mMVPMatrixHandle, 1, false, g.mMVPMatrix, 0);
+
+        // Pass in the light position in eye space.
+        GLES20.glUniform3f(g.mLightPosHandle, g.mLightPosInEyeSpace[0], g.mLightPosInEyeSpace[1], g.mLightPosInEyeSpace[2]);
+
+        // Draw the cube.
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
     }
 }

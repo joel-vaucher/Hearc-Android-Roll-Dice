@@ -26,17 +26,17 @@ import android.view.MotionEvent;
  */
 public class MyGLSurfaceView extends GLSurfaceView {
 
-    private final MyGLRenderer mRenderer;
+    //private final MyGLRenderer mRenderer;
 
     public MyGLSurfaceView(Context context) {
         super(context);
 
         // Set the Renderer for drawing on the GLSurfaceView
-        mRenderer = new MyGLRenderer(context);
-        setRenderer(mRenderer);
+        //mRenderer = new MyGLRenderer(context);
+        //setRenderer(mRenderer);
 
         // Render the view only when there is a change in the drawing data
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        //setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;

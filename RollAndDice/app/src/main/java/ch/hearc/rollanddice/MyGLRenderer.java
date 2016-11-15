@@ -52,11 +52,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
      */
     public float[] mLightModelMatrix = new float[16];
 
-    public Dice6 d1;
-    public Dice6 d2;
-    public Dice6 d3;
-    public Dice6 d4;
-    public Dice6 d5;
+    public Dice6[] tabD6;
 
     /** This will be used to pass in the transformation matrix. */
     public int mMVPMatrixHandle;
@@ -99,7 +95,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
     /** Used to hold a light centered on the origin in model space. We need a 4th coordinate so we can get translations to work when
      *  we multiply this by our transformation matrices. */
-    public final float[] mLightPosInModelSpace = new float[] {0.0f, 0.0f, 0.0f, 1.0f};
+    public final float[] mLightPosInModelSpace = new float[] {0.0f, 0.0f, 1.5f, 1.0f};
 
     /** Used to hold the current position of the light in world space (after transformation via model matrix). */
     public final float[] mLightPosInWorldSpace = new float[4];
@@ -116,18 +112,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     /** This is a handle to our texture data. */
     public int mTextureDataHandle;
 
+    private int nbD6;
+
     /**
      * Initialize the model data.
      */
-    public MyGLRenderer(final Context activityContext)
+    public MyGLRenderer(final Context activityContext, int nbD6)
     {
         mActivityContext = activityContext;
 
-        d1 = new Dice6();
-        d2 = new Dice6();
-        d3 = new Dice6();
-        d4 = new Dice6();
-        d5 = new Dice6();
+        this.nbD6 = nbD6;
+        tabD6 = new Dice6[nbD6];
+
+        for(int i = 0; i < nbD6; i++){
+            tabD6[i] = new Dice6();
+        }
     }
 
     protected String getVertexShader()
@@ -212,7 +211,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = 10.0f;
+        final float far = 30.0f;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
@@ -251,36 +250,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         // Calculate position of the light. Rotate and then push into the distance.
         Matrix.setIdentityM(mLightModelMatrix, 0);
         Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);
-        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
+        //Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
         Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
 
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
 
         // Draw some cubes.
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -7.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
-        d1.drawCube(this);
 
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, -4.0f, 0.0f, -7.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
-        d2.drawCube(this);
 
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 4.0f, -7.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 0.0f, 1.0f);
-        d3.drawCube(this);
-
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, -4.0f, -7.0f);
-        d4.drawCube(this);
-
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -5.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);
-        d5.drawCube(this);
+        for(int i = 0; i < nbD6; i++){
+            Matrix.setIdentityM(mModelMatrix, 0);
+            Matrix.translateM(mModelMatrix, 0, 0.0f, i*4.0f - (nbD6*3)/2.0f, -nbD6 * 3.0f);
+            Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
+            tabD6[i].drawCube(this);
+        }
 
         // Draw a point to indicate the light.
         GLES20.glUseProgram(mPointProgramHandle);

@@ -15,10 +15,18 @@
  */
 package ch.hearc.rollanddice;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +39,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
 
     private GLSurfaceView mGLView;
     private TextView textViewResult;
@@ -41,6 +49,8 @@ public class MainActivity extends Activity {
     private EditText nbD20;
     private EditText nbD100;
     private String textSave;
+
+    private LocationManager locationManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +77,44 @@ public class MainActivity extends Activity {
             }
         });
         readSave();
+
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        try{
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 0, this);
+            Log.v("Location", "Attempt location");
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            Log.v("Location", lastKnownLocation.toString());
+        }catch(SecurityException se){
+            Log.v("Location :", "Security Exception");
+        }
+
+
+
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.v("Location", "Permission granted");
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.v("Location", "Permission denied");
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+
     }
 
     @Override
@@ -180,4 +228,26 @@ public class MainActivity extends Activity {
             Log.i("readSave", "error");
         }
     }
+
+    @Override
+    public void onProviderEnabled(String provider){
+        Log.v("Location", "Provider Enable" + provider);
+    }
+
+    @Override
+    public void onLocationChanged(Location location){
+        String msg = "Latitude : " + location.getLatitude() + "Longitude : " + location.getLongitude();
+        Log.v("Location" , msg);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras){
+        Log.v("Location" , "Status Changed");
+    }
+
+    @Override
+    public void onProviderDisabled(String provider){
+        Log.v("Location", "Provider Disabled " + provider);
+    }
+    
 }

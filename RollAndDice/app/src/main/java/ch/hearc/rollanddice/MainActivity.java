@@ -15,11 +15,15 @@
  */
 package ch.hearc.rollanddice;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,6 +56,9 @@ public class MainActivity extends Activity {
        // setContentView(mGLView);
         setContentView(R.layout.activity_main);
 
+      /*  ActionBar actionBar = getActionBar();
+        actionBar.show();*/
+
 
         textViewResult = (TextView)findViewById(R.id.textViewResult);
         nbD4 = (EditText)findViewById(R.id.editTextD4);
@@ -66,7 +73,15 @@ public class MainActivity extends Activity {
                 rollDices();
             }
         });
-        readSave();
+
+        Button btnStats = (Button)findViewById(R.id.buttonStats);
+        btnStats.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent demarre= new Intent(MainActivity.this, StatsActivity.class);
+                startActivity(demarre);
+            }
+        });
     }
 
     @Override
@@ -87,6 +102,31 @@ public class MainActivity extends Activity {
         super.onResume();
       //  mGLView.onResume();
     }
+
+
+
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.test:
+                return true;
+/*
+            case R.id.action_search :
+                return true;
+            case R.id.action_share :
+                return true; */
+  /*          default:
+                return super.onOptionsItemSelected(item);
+        }
+    }*/
 
     protected int readNumber(EditText editText){
         if(editText.getText().toString() == "")
@@ -161,23 +201,6 @@ public class MainActivity extends Activity {
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    protected void readSave(){
-        File saveFile = new File(getFilesDir(), "RollAndDiceData");
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(saveFile));
-            String line;
-            Log.i("readSave", "ok");
-            while ((line = br.readLine()) != null) {
-                Log.i("readSave", line);
-            }
-            br.close();
-        }
-        catch (IOException e) {
-            Log.i("readSave", "error");
         }
     }
 }

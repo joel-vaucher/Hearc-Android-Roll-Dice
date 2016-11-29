@@ -52,7 +52,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
      */
     public float[] mLightModelMatrix = new float[16];
 
-    public Dice6[] tabD6;
 
     /** This will be used to pass in the transformation matrix. */
     public int mMVPMatrixHandle;
@@ -114,6 +113,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
     private int nbD6;
 
+    public DiceX[] tabD6;
     /**
      * Initialize the model data.
      */
@@ -122,10 +122,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         mActivityContext = activityContext;
 
         this.nbD6 = nbD6;
-        tabD6 = new Dice6[nbD6];
+        tabD6 = new DiceX[nbD6];
 
         for(int i = 0; i < nbD6; i++){
-            tabD6[i] = new Dice6();
+            tabD6[i] = new DiceX(8);
         }
     }
 
@@ -211,7 +211,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = 30.0f;
+        final float far = (nbD6*3)+5;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }

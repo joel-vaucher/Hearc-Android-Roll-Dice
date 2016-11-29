@@ -112,20 +112,29 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     public int mTextureDataHandle;
 
     private int nbD6;
+    public Dice6[] tabD6;
 
-    public DiceX[] tabD6;
+    private int nbDX;
+    public DiceX[] tabDX;
     /**
      * Initialize the model data.
      */
-    public MyGLRenderer(final Context activityContext, int nbD6)
+    public MyGLRenderer(final Context activityContext, int nbD6, int nbDX)
     {
         mActivityContext = activityContext;
 
         this.nbD6 = nbD6;
-        tabD6 = new DiceX[nbD6];
+        tabD6 = new Dice6[nbD6];
 
         for(int i = 0; i < nbD6; i++){
-            tabD6[i] = new DiceX(8);
+            tabD6[i] = new Dice6();
+        }
+
+        this.nbDX = nbDX;
+        tabDX = new DiceX[nbDX];
+
+        for(int i = 0; i < nbDX; i++){
+            tabDX[i] = new DiceX(8);
         }
     }
 
@@ -264,6 +273,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
             Matrix.translateM(mModelMatrix, 0, 0.0f, i*4.0f - (nbD6*3)/2.0f, -nbD6 * 3.0f);
             Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
             tabD6[i].drawCube(this);
+        }
+
+        for(int i = 0; i < nbDX; i++){
+            Matrix.setIdentityM(mModelMatrix, 0);
+            Matrix.translateM(mModelMatrix, 0, 1.0f, i*4.0f - (nbDX*3)/2.0f, -nbDX * 3.0f);
+            Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
+            tabDX[i].drawCube(this);
         }
 
         // Draw a point to indicate the light.

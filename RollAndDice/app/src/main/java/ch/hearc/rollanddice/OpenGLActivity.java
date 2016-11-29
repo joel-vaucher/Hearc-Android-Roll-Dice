@@ -28,15 +28,16 @@ public class OpenGLActivity extends Activity {
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
         int D6 = getIntent().getIntExtra("D6", 0);
+        int DX = getIntent().getIntExtra("DX", 0);
 
 
-        if (supportsEs2 && D6 != 0)
+        if (supportsEs2 && (D6 != 0 || DX != 0))
         {
             // Request an OpenGL ES 2.0 compatible context.
             mGLSurfaceView.setEGLContextClientVersion(2);
 
             // Set the renderer to our demo renderer, defined below.
-            mGLSurfaceView.setRenderer(new MyGLRenderer(this, D6));
+            mGLSurfaceView.setRenderer(new MyGLRenderer(this, D6, DX));
         }
         else
         {

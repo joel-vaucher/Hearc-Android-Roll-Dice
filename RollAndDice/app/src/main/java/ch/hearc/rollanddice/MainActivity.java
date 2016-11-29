@@ -40,6 +40,8 @@ public class MainActivity extends Activity
         Intent intent = new Intent(this, OpenGLActivity.class);
         EditText D6 = (EditText)findViewById(R.id.editTextD6);
         intent.putExtra("D6", Integer.parseInt(D6.getText().toString()));
+        EditText DX = (EditText)findViewById(R.id.editTextD100);
+        intent.putExtra("DX", Integer.parseInt(DX.getText().toString()));
         startActivity(intent);
     }
 

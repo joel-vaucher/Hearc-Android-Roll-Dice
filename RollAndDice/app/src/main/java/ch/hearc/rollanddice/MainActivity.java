@@ -1,26 +1,12 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package ch.hearc.rollanddice;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.pm.ConfigurationInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,6 +25,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+<<<<<<< HEAD
+import ch.hearc.rollanddice.common.*;
+import ch.hearc.rollanddice.MyGLRenderer;
+=======
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,8 +36,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class MainActivity extends Activity implements LocationListener {
+>>>>>>> refs/remotes/origin/master
 
-    private GLSurfaceView mGLView;
+public class MainActivity extends Activity
+{
     private TextView textViewResult;
     private EditText nbD4;
     private EditText nbD6;
@@ -59,13 +51,10 @@ public class MainActivity extends Activity implements LocationListener {
     private LocationManager locationManager;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
-        // Create a GLSurfaceView instance and set it
-        // as the ContentView for this Activity.
-        //mGLView = new MyGLSurfaceView(this);
-       // setContentView(mGLView);
         setContentView(R.layout.activity_main);
 
       /*  ActionBar actionBar = getActionBar();
@@ -88,9 +77,14 @@ public class MainActivity extends Activity implements LocationListener {
         Button btnStats = (Button)findViewById(R.id.buttonStats);
         btnStats.setOnClickListener(new View.OnClickListener(){
             @Override
+<<<<<<< HEAD
+            public void onClick(View v) {
+                createOpenGlView();
+=======
             public void onClick(View v){
                 Intent demarre= new Intent(MainActivity.this, StatsActivity.class);
                 startActivity(demarre);
+>>>>>>> refs/remotes/origin/master
             }
         });
 
@@ -132,24 +126,13 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
     }
-
-    @Override
-    protected void onPause() {
-        // The following call pauses the rendering thread.
-        // If your OpenGL application is memory intensive,
-        // you should consider de-allocating objects that
-        // consume significant memory here.
-        super.onPause();
-      //  mGLView.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        // The following call resumes a paused rendering thread.
-        // If you de-allocated graphic objects for onPause()
-        // this is a good place to re-allocate them.
-        super.onResume();
-      //  mGLView.onResume();
+    public void createOpenGlView(){
+        Intent intent = new Intent(this, OpenGLActivity.class);
+        EditText D6 = (EditText)findViewById(R.id.editTextD6);
+        intent.putExtra("D6", Integer.parseInt(D6.getText().toString()));
+        EditText DX = (EditText)findViewById(R.id.editTextD100);
+        intent.putExtra("DX", Integer.parseInt(DX.getText().toString()));
+        startActivity(intent);
     }
 
 

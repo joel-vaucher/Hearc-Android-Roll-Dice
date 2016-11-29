@@ -25,10 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-<<<<<<< HEAD
 import ch.hearc.rollanddice.common.*;
 import ch.hearc.rollanddice.MyGLRenderer;
-=======
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,10 +34,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class MainActivity extends Activity implements LocationListener {
->>>>>>> refs/remotes/origin/master
-
-public class MainActivity extends Activity
-{
     private TextView textViewResult;
     private EditText nbD4;
     private EditText nbD6;
@@ -72,19 +66,15 @@ public class MainActivity extends Activity
             @Override
             public void onClick(View v){
                 rollDices();
+                //createOpenGlView();
             }
         });
         Button btnStats = (Button)findViewById(R.id.buttonStats);
         btnStats.setOnClickListener(new View.OnClickListener(){
             @Override
-<<<<<<< HEAD
             public void onClick(View v) {
-                createOpenGlView();
-=======
-            public void onClick(View v){
-                Intent demarre= new Intent(MainActivity.this, StatsActivity.class);
+                Intent demarre = new Intent(MainActivity.this, StatsActivity.class);
                 startActivity(demarre);
->>>>>>> refs/remotes/origin/master
             }
         });
 
@@ -93,7 +83,7 @@ public class MainActivity extends Activity
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
         try{
-            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 0, this);
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
             Log.v("Location", lastKnownLocation.toString());
@@ -106,6 +96,7 @@ public class MainActivity extends Activity
 
     }
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {

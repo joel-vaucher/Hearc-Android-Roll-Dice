@@ -65,8 +65,8 @@ public class MainActivity extends Activity implements LocationListener {
         btnRoll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                rollDices();
-                //createOpenGlView();
+                //rollDices();
+                createOpenGlView();
             }
         });
         Button btnStats = (Button)findViewById(R.id.buttonStats);

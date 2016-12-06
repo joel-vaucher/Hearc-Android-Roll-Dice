@@ -45,11 +45,11 @@ public class DiceX {
      */
     public DiceX(int x) {
         // Define points for a cube.
-        x = (x >= 4) ? x : 4;
+        x = (x >= 5) ? x : 5;
 
         int b = x - 2;
 
-        float[] cubePositionData = new float[b*6*3];
+        float[] cubePositionData = new float[b*6*3 + (b-2)*3*6];
 
         double angle1 = 0;
         double angle2 = 0;
@@ -75,68 +75,37 @@ public class DiceX {
             cubePositionData[i+17] = (float)Math.sin(angle2);
             angle1 = angle2;
         }
-        /*
-        // X, Y, Z
-        final float[] cubePositionData =
-                {
-                        // In OpenGL counter-clockwise winding is default. This means that when we look at a triangle,
-                        // if the points are counter-clockwise we are looking at the "front". If not we are looking at
-                        // the back. OpenGL has an optimization where all back-facing triangles are culled, since they
-                        // usually represent the backside of an object and aren't visible anyways.
 
-                        // Front face
-                        -1.0f, 1.0f, 1.0f,
-                        -1.0f, -1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f,
-                        -1.0f, -1.0f, 1.0f,
-                        1.0f, -1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f,
+        double angle0 = 0;
+        angle1 = 2.0/(double)b*Math.PI;
+        angle2 = angle1;
+        for(int i = b*6*3; i < b*6*3 + (b-2)*3*6; i+= 3*6){
+            angle2 += 2.0/(double)b*Math.PI;
+            cubePositionData[i] = (float)Math.cos(angle0);
+            cubePositionData[i+1] = 0.5f;
+            cubePositionData[i+2] = (float)Math.sin(angle0);
+            cubePositionData[i+3] = (float)Math.cos(angle1);
+            cubePositionData[i+4] = 0.5f;
+            cubePositionData[i+5] = (float)Math.sin(angle1);
+            cubePositionData[i+6] = (float)Math.cos(angle2);
+            cubePositionData[i+7] = 0.5f;
+            cubePositionData[i+8] = (float)Math.sin(angle2);
+            cubePositionData[i+9] = (float)Math.cos(angle0);
+            cubePositionData[i+10] = -0.5f;
+            cubePositionData[i+11] = (float)Math.sin(angle0);
+            cubePositionData[i+12] = (float)Math.cos(angle1);
+            cubePositionData[i+13] = -0.5f;
+            cubePositionData[i+14] = (float)Math.sin(angle1);
+            cubePositionData[i+15] = (float)Math.cos(angle2);
+            cubePositionData[i+16] = -0.5f;
+            cubePositionData[i+17] = (float)Math.sin(angle2);
+            angle1 = angle2;
+        }
 
-                        // Right face
-                        1.0f, 1.0f, 1.0f,
-                        1.0f, -1.0f, 1.0f,
-                        1.0f, 1.0f, -1.0f,
-                        1.0f, -1.0f, 1.0f,
-                        1.0f, -1.0f, -1.0f,
-                        1.0f, 1.0f, -1.0f,
 
-                        // Back face
-                        1.0f, 1.0f, -1.0f,
-                        1.0f, -1.0f, -1.0f,
-                        -1.0f, 1.0f, -1.0f,
-                        1.0f, -1.0f, -1.0f,
-                        -1.0f, -1.0f, -1.0f,
-                        -1.0f, 1.0f, -1.0f,
+        float[] cubeColorData = new float[(2*b-2)*6*4];
 
-                        // Left face
-                        -1.0f, 1.0f, -1.0f,
-                        -1.0f, -1.0f, -1.0f,
-                        -1.0f, 1.0f, 1.0f,
-                        -1.0f, -1.0f, -1.0f,
-                        -1.0f, -1.0f, 1.0f,
-                        -1.0f, 1.0f, 1.0f,
-
-                        // Top face
-                        -1.0f, 1.0f, -1.0f,
-                        -1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, -1.0f,
-                        -1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, -1.0f,
-
-                        // Bottom face
-                        1.0f, -1.0f, -1.0f,
-                        1.0f, -1.0f, 1.0f,
-                        -1.0f, -1.0f, -1.0f,
-                        1.0f, -1.0f, 1.0f,
-                        -1.0f, -1.0f, 1.0f,
-                        -1.0f, -1.0f, -1.0f,
-                };
-        */
-
-        float[] cubeColorData = new float[b*6*4];
-
-        for(int i = 0; i < b*6*4; i+= 6*4) {
+        for(int i = 0; i < (2*b-2)*6*4; i+= 6*4) {
             cubeColorData[i] = 1.0f;
             cubeColorData[i+1] = 0.0f;
             cubeColorData[i+2] = 0.0f;
@@ -162,68 +131,14 @@ public class DiceX {
             cubeColorData[i+22] = 0.0f;
             cubeColorData[i+23] = 1.0f;
         }
-        /*
-        // R, G, B, A
-        final float[] cubeColorData =
-                {
-                        // Front face (red)
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-
-                        // Right face (green)
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-
-                        // Back face (blue)
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-
-                        // Left face (yellow)
-                        1.0f, 1.0f, 0.0f, 1.0f,
-                        1.0f, 1.0f, 0.0f, 1.0f,
-                        1.0f, 1.0f, 0.0f, 1.0f,
-                        1.0f, 1.0f, 0.0f, 1.0f,
-                        1.0f, 1.0f, 0.0f, 1.0f,
-                        1.0f, 1.0f, 0.0f, 1.0f,
-
-                        // Top face (cyan)
-                        0.0f, 1.0f, 1.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f,
-
-                        // Bottom face (magenta)
-                        1.0f, 0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f
-                };
-
-         */
 
 
-        float[] cubeNormalData = new float[b*6*3];
+        float[] cubeNormalData = new float[b*6*3 + (b-2)*6*3];
 
         angle1 = 0;
         angle2 = 0;
         for(int i = 0; i < b*6*3; i+= 3*6){
-            angle2 += 2.0/(double)b/3*Math.PI;
+            angle2 += 2.0/(double)b*Math.PI;
             double angleMid = (angle1+angle2)/2;
             cubeNormalData[i] = (float)Math.cos(angleMid);
             cubeNormalData[i+1] = 0;
@@ -246,68 +161,30 @@ public class DiceX {
             angle1 = angle2;
         }
 
-        /*
-        // X, Y, Z
-        // The normal is used in light calculations and is a vector which points
-        // orthogonal to the plane of the surface. For a cube model, the normals
-        // should be orthogonal to the points of each face.
-        final float[] cubeNormalData =
-                {
-                        // Front face
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
+        for(int i = b*6*3; i < b*6*3 + (b-2)*6*3; i+= 3*6){
+            cubeNormalData[i] = 0;
+            cubeNormalData[i+1] = 1;
+            cubeNormalData[i+2] = 0;
+            cubeNormalData[i+3] = 0;
+            cubeNormalData[i+4] = 1;
+            cubeNormalData[i+5] = 0;
+            cubeNormalData[i+6] = 0;
+            cubeNormalData[i+7] = 1;
+            cubeNormalData[i+8] = 0;
+            cubeNormalData[i+9] = 0;
+            cubeNormalData[i+10] = -1;
+            cubeNormalData[i+11] = 0;
+            cubeNormalData[i+12] = 0;
+            cubeNormalData[i+13] = -1;
+            cubeNormalData[i+14] = 0;
+            cubeNormalData[i+15] = 0;
+            cubeNormalData[i+16] = -1;
+            cubeNormalData[i+17] = 0;
+        }
 
-                        // Right face
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
+        float[] cubeTextureCoordinateData = new float[b*6*2 + (b-2)*6*2];
 
-                        // Back face
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-
-                        // Left face
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-
-                        // Top face
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-
-                        // Bottom face
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f
-                };
-
-        */
-
-
-        float[] cubeTextureCoordinateData = new float[b*6*2];
-
-        for(int i = 0; i < b*6*2; i+= 6*2){
+        for(int i = 0; i < b*6*2 + (b-2)*6*2; i+= 6*2){
             cubeTextureCoordinateData[i] = 0.0f;
             cubeTextureCoordinateData[i+1] = 1.0f;
             cubeTextureCoordinateData[i+2] = 0.0f;
@@ -321,64 +198,6 @@ public class DiceX {
             cubeTextureCoordinateData[i+10] = 0.33f;
             cubeTextureCoordinateData[i+11] = 1.0f;
         }
-
-        /*
-        // S, T (or X, Y)
-        // Texture coordinate data.
-        // Because images have a Y axis pointing downward (values increase as you move down the image) while
-        // OpenGL has a Y axis pointing upward, we adjust for that here by flipping the Y axis.
-        // What's more is that the texture coordinates are the same for every face.
-        final float[] cubeTextureCoordinateData =
-                {
-                        // Front face
-                        0.0f, 1.0f,
-                        0.0f, 0.5f,
-                        0.33f, 1.0f,
-                        0.0f, 0.5f,
-                        0.33f, 0.5f,
-                        0.33f, 1.0f,
-
-                        // Right face
-                        0.66f, 1.0f,
-                        0.66f, 0.5f,
-                        1.0f, 1.0f,
-                        0.66f, 0.5f,
-                        1.0f, 0.5f,
-                        1.0f, 1.0f,
-
-                        // Back face
-                        0.0f, 0.5f,
-                        0.0f, 0.0f,
-                        0.33f, 0.5f,
-                        0.0f, 0.0f,
-                        0.33f, 0.0f,
-                        0.33f, 0.5f,
-
-                        // Left face
-                        0.66f, 0.5f,
-                        0.66f, 0.0f,
-                        1.0f, 0.5f,
-                        0.66f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 0.5f,
-
-                        // Top face
-                        0.33f, 1.0f,
-                        0.33f, 0.5f,
-                        0.66f, 1.0f,
-                        0.33f, 0.5f,
-                        0.66f, 0.5f,
-                        0.66f, 1.0f,
-
-                        // Bottom face
-                        0.33f, 0.5f,
-                        0.33f, 0.0f,
-                        0.66f, 0.5f,
-                        0.33f, 0.0f,
-                        0.66f, 0.0f,
-                        0.66f, 0.5f,
-                };
-        */
 
         // Initialize the buffers.
         mCubePositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
@@ -453,6 +272,6 @@ public class DiceX {
         GLES20.glDisable(GLES20.GL_CULL_FACE);
 
         // Draw the cube.
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, x*12-36 );
     }
 }

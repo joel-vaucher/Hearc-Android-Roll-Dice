@@ -1,13 +1,18 @@
 package ch.hearc.rollanddice;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,27 +34,51 @@ public class StatsActivity extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.listViewStats);
         listView.setAdapter(adapter);
+
+        Button btnReturn = (Button)findViewById(R.id.buttonReturn);
+        btnReturn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                finish();
+            }
+        });
+
+        Button btnReset = (Button)findViewById(R.id.buttonReset);
+        btnReset.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                resetFile();
+                finish();
+            }
+        });
     }
 
+    protected void resetFile(){
+        String filename = "RollAndDiceData";
+        FileOutputStream outputStream;
 
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write("".getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     protected void readSave(){
         File saveFile = new File(getFilesDir(), "RollAndDiceData");
 
-        // if(saveFile.exists()) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(saveFile));
             String line;
-          //  Log.i("readSave", "ok");
             while ((line = br.readLine()) != null) {
-               // Log.i("readSave", line);
                 addLine(line);
             }
             br.close();
         } catch (IOException e) {
             Log.i("readSaveError", e.getMessage());
         }
-        // }
     }
 
     protected void addLine(String line){
@@ -59,7 +88,7 @@ public class StatsActivity extends AppCompatActivity {
             if(result.length == 1){
                 renderedLine += "\nTotal: " + result[0];
             }else {
-                renderedLine += "Dé(s) à " + result[0] + " face(s): " + result[1] + ", Total: " + result[2] + "\n";
+                renderedLine += "Dé(s) à " + result[0] + " faces: " + result[1] + ", Total: " + result[2] + "\n";
             }
         }
         stats.add(renderedLine);

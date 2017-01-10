@@ -17,12 +17,20 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import ch.hearc.rollanddice.common.*;
@@ -32,17 +40,24 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends Activity implements LocationListener {
     private TextView textViewResult;
-    private EditText nbD4;
-    private EditText nbD6;
-    private EditText nbD10;
-    private EditText nbD20;
-    private EditText nbD100;
     private String textSave;
+    private ArrayList<EditText> nbDices = new ArrayList<>();
 
     private LocationManager locationManager;
+
+    private ListView listView;
+    private ArrayList<String> textDices = new ArrayList<>();
+    private ArrayList<String> textFaceDices = new ArrayList<>();
+    private ArrayList<String> textNbDices = new ArrayList<>();
+    MainActivity.MyListAdapter myListAdapter;
+    private Map<Integer, Integer> listRolledDices = new HashMap<Integer, Integer>();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -51,16 +66,8 @@ public class MainActivity extends Activity implements LocationListener {
 
         setContentView(R.layout.activity_main);
 
-      /*  ActionBar actionBar = getActionBar();
-        actionBar.show();*/
-
 
         textViewResult = (TextView)findViewById(R.id.textViewResult);
-        nbD4 = (EditText)findViewById(R.id.editTextD4);
-        nbD6 = (EditText)findViewById(R.id.editTextD6);
-        nbD10 = (EditText)findViewById(R.id.editTextD10);
-        nbD20 = (EditText)findViewById(R.id.editTextD20);
-        nbD100 = (EditText)findViewById(R.id.editTextD100);
         Button btnRoll = (Button)findViewById(R.id.buttonRoll);
         btnRoll.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -77,6 +84,13 @@ public class MainActivity extends Activity implements LocationListener {
                 startActivity(demarre);
             }
         });
+        Button btnNewDice = (Button)findViewById(R.id.buttonNewDice);
+        btnNewDice.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                newDice();
+            }
+        });
 
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
@@ -86,12 +100,18 @@ public class MainActivity extends Activity implements LocationListener {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            Log.v("Location", lastKnownLocation.toString());
+        //    Log.v("Location", lastKnownLocation.toString());
         }catch(SecurityException se){
             Log.v("Location :", "Security Exception");
         }
 
+        textDices.add("dé");
+        textFaceDices.add("10");
+        textNbDices.add("0");
 
+        myListAdapter = new MainActivity.MyListAdapter();
+        listView = (ListView) findViewById(R.id.testListView);
+        listView.setAdapter(myListAdapter);
 
 
     }
@@ -117,13 +137,17 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
     }
+
+
+
+
     public void createOpenGlView(){
-        Intent intent = new Intent(this, OpenGLActivity.class);
+       /* Intent intent = new Intent(this, OpenGLActivity.class);
         EditText D6 = (EditText)findViewById(R.id.editTextD6);
         intent.putExtra("D6", Integer.parseInt(D6.getText().toString()));
         EditText DX = (EditText)findViewById(R.id.editTextD100);
         intent.putExtra("DX", Integer.parseInt(DX.getText().toString()));
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
 
@@ -151,38 +175,28 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }*/
 
-    protected int readNumber(EditText editText){
-        if(editText.getText().toString() == "")
-            return 0;
-        else
-            return Integer.parseInt(editText.getText().toString());
-    }
-
     protected void rollDices(){
         textViewResult.setText("");
         textSave = "";
         int total = 0;
 
-        int nbDices = readNumber(nbD4);
-        if(nbDices > 0) {
-            total += rollOneTypeOfDice(4, nbDices);
+        listRolledDices.clear();
+        for(int i = 0; i < textDices.size(); i++){
+            int nbFaces = Integer.parseInt(textFaceDices.get(i));
+            int nbDices = Integer.parseInt(textNbDices.get(i));
+            if(listRolledDices.containsKey(nbFaces)){
+                listRolledDices.put(nbFaces, listRolledDices.get(nbFaces) + nbDices);
+            }else{
+                listRolledDices.put(nbFaces, nbDices);
+            }
         }
-        nbDices = readNumber(nbD6);
-        if(nbDices > 0) {
-            total += rollOneTypeOfDice(6, nbDices);
+
+        for(int nbFaces : listRolledDices.keySet()){
+            if(listRolledDices.get(nbFaces) > 0){
+                total += rollOneTypeOfDice(nbFaces, listRolledDices.get(nbFaces));
+            }
         }
-        nbDices = readNumber(nbD10);
-        if(nbDices > 0) {
-            total += rollOneTypeOfDice(10, nbDices);
-        }
-        nbDices = readNumber(nbD20);
-        if(nbDices > 0) {
-            total += rollOneTypeOfDice(20, nbDices);
-        }
-        nbDices = readNumber(nbD100);
-        if(nbDices > 0) {
-            total += rollOneTypeOfDice(100, nbDices);
-        }
+
         textSave += total+ "\n";
 
         textViewResult.setText(textViewResult.getText() + "\nTotal: " + total);
@@ -212,6 +226,14 @@ public class MainActivity extends Activity implements LocationListener {
 
     protected int rollOneDice(int nbFaces){
         return (int)(Math.random()*nbFaces+1);
+    }
+
+    protected void newDice(){
+        textDices.add("dé");
+        textFaceDices.add("10");
+        textNbDices.add("0");
+
+        myListAdapter.notifyDataSetChanged();
     }
 
     protected void saveFile(){
@@ -246,6 +268,112 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onProviderDisabled(String provider){
         Log.v("Location", "Provider Disabled " + provider);
+    }
+
+
+    //http://www.webplusandroid.com/creating-listview-with-edittext-and-textwatcher-in-android/
+    private class MyListAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            // TODO Auto-generated method stub
+            if(textDices != null && textDices.size() != 0){
+                return textDices.size();
+            }
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            // TODO Auto-generated method stub
+            return textDices.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // TODO Auto-generated method stub
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            final MainActivity.MyListAdapter.ViewHolder holder;
+            if (convertView == null) {
+
+                holder = new MainActivity.MyListAdapter.ViewHolder();
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                convertView = inflater.inflate(R.layout.activity_list2, null);
+                holder.textView1 = (TextView) convertView.findViewById(R.id.textView1);
+                holder.editText1 = (EditText) convertView.findViewById(R.id.editText1);
+                holder.editText2 = (EditText) convertView.findViewById(R.id.editText2);
+
+                convertView.setTag(holder);
+
+            } else {
+
+                holder = (MainActivity.MyListAdapter.ViewHolder) convertView.getTag();
+            }
+
+            holder.ref = position;
+
+            holder.textView1.setText(textDices.get(position));
+            holder.editText1.setText(textFaceDices.get(position));
+            holder.editText1.addTextChangedListener(new TextWatcher() {
+
+                @Override
+                public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                              int arg3) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable arg0) {
+                    // TODO Auto-generated method stub
+                    textFaceDices.set(holder.ref, arg0.toString()) ;
+                }
+            });
+            holder.editText2.setText(textNbDices.get(position));
+            holder.editText2.addTextChangedListener(new TextWatcher() {
+
+                @Override
+                public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                              int arg3) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable arg0) {
+                    // TODO Auto-generated method stub
+                    textNbDices.set(holder.ref, arg0.toString()) ;
+                }
+            });
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+            TextView textView1;
+            EditText editText1;
+            EditText editText2;
+            int ref;
+        }
+
+
     }
 
 }

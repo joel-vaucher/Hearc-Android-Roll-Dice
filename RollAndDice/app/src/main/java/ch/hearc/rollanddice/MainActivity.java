@@ -100,7 +100,7 @@ public class MainActivity extends Activity implements LocationListener {
         try{
             Log.v("Location", "try location");
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
-            locationManager.requestLocationUpdates(locationManager.PASSIVE_PROVIDER, 2000, 1, this);
+            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
             //Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
             //Log.v("Location", "Last : " + lastKnownLocation.toString());
@@ -390,7 +390,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         String email = "superrollanddice@gmail.com";
         String subject = "position";
-        String message = position + "\n";// + "\n Device : " +android.os.Build.DEVICE+ "\nDevice : " +android.os.Build.DEVICE;
+        String message = position + "\n" + "\n Model : " +android.os.Build.MODEL+ "\nDevice : " +android.os.Build.DEVICE;
 
         //Creating SendMail object
         SendMail sm = new SendMail(this, email, subject, message);

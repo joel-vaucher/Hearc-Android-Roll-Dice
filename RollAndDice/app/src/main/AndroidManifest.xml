@@ -30,6 +30,7 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".StatsActivity" />
         <activity android:name=".ListActivity"></activity>
+        <activity android:name=".DiceAdapter2" />
     </application>
 
 </manifest>

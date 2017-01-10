@@ -45,9 +45,9 @@ public class DiceX {
      */
     public DiceX(int x) {
         // Define points for a cube.
-        x = (x >= 5) ? x : 5;
+        this.x = (x >= 5) ? x : 5;
 
-        int b = x - 2;
+        int b = this.x - 2;
 
         float[] cubePositionData = new float[b*6*3 + (b-2)*3*6];
 

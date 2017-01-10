@@ -89,6 +89,8 @@ public class MainActivity extends Activity implements LocationListener {
             Log.v("Location", lastKnownLocation.toString());
         }catch(SecurityException se){
             Log.v("Location :", "Security Exception");
+        }catch(NullPointerException ne){
+            //rien
         }
 
 

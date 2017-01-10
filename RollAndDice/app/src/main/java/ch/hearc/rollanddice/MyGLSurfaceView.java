@@ -26,8 +26,6 @@ import android.view.MotionEvent;
  */
 public class MyGLSurfaceView extends GLSurfaceView {
 
-    //private final MyGLRenderer mRenderer;
-
     public MyGLSurfaceView(Context context) {
         super(context);
 

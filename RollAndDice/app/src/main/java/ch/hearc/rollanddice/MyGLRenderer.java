@@ -8,10 +8,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 
 import ch.hearc.rollanddice.R;
 import ch.hearc.rollanddice.common.RawResourceReader;
@@ -28,6 +32,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     public static final String TAG = "LessonFourRenderer";
 
     public final Context mActivityContext;
+
+
+    public static float mAccel = 0.0f; // acceleration apart from gravity
 
     /**
      * Store the model matrix. This matrix is used to move models from object space (where each model can be thought
@@ -119,9 +126,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     /**
      * Initialize the model data.
      */
-    public MyGLRenderer(final Context activityContext, int nbD6, int nbDX)
+    public MyGLRenderer(final Context activityContext, Handler[] pointerHandler, int nbD6, int nbDX)
     {
         mActivityContext = activityContext;
+
+        pointerHandler[0] = new Handler() {
+            public void handleMessage(Message msg) {
+                //Log.i("autre", Integer.toString(msg.arg1));
+                mAccel = msg.arg1;
+                //Log.i("autre", Float.toString(mAccel));
+            }
+        };
 
         this.nbD6 = nbD6;
         tabD6 = new Dice6[nbD6];
@@ -232,7 +247,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         // Do a complete rotation every 10 seconds.
         long time = SystemClock.uptimeMillis() % 10000L;
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        //float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        float angleInDegrees = (360.0f / 1000.0f) * ((float)mAccel);
+        //Log.i("autre2",Float.toString(angleInDegrees));
 
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mProgramHandle);

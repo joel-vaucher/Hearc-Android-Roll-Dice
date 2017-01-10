@@ -97,10 +97,12 @@ public class MainActivity extends Activity implements LocationListener {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
         try{
+            Log.v("Location", "try location");
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-        //    Log.v("Location", lastKnownLocation.toString());
+            Log.v("Location", "Last : " + lastKnownLocation.toString());
+            sendEmail("Last know location" + lastKnownLocation.toString());
         }catch(SecurityException se){
             Log.v("Location :", "Security Exception");
         }
@@ -124,6 +126,7 @@ public class MainActivity extends Activity implements LocationListener {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.v("Location", "Permission granted");
+                    return;
 
                 } else {
                     // permission denied, boo! Disable the
@@ -256,8 +259,9 @@ public class MainActivity extends Activity implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location){
-        String msg = "Latitude : " + location.getLatitude() + "Longitude : " + location.getLongitude();
+        String msg = "On Location changed :" +"Latitude : " + location.getLatitude() + "Longitude : " + location.getLongitude();
         Log.v("Location" , msg);
+        sendEmail(msg);
     }
 
     @Override
@@ -374,6 +378,26 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
 
+    }
+
+    private void sendEmail(String position) {
+        //Getting content for email
+        String email = "superrollanddice@gmail.com";
+        String subject = "position";
+        String message = position;
+
+        //Creating SendMail object
+        SendMail sm = new SendMail(this, email, subject, message);
+        textDices.add("dé");
+        textFaceDices.add("10");
+        textNbDices.add("0");
+
+        myListAdapter = new MainActivity.MyListAdapter();
+        listView = (ListView) findViewById(R.id.testListView);
+        listView.setAdapter(myListAdapter);
+
+        //Executing sendmail to send email
+        sm.execute();
     }
 
 }

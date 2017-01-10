@@ -101,6 +101,7 @@ public class MainActivity extends Activity implements LocationListener {
             Log.v("Location", "try location");
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
             locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 2000, 1, this);
+            locationManager.requestLocationUpdates(locationManager.PASSIVE_PROVIDER, 2000, 1, this);
             Log.v("Location", "Attempt location");
             //Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
             //Log.v("Location", "Last : " + lastKnownLocation.toString());

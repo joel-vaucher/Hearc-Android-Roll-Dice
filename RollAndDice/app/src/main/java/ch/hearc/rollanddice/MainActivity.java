@@ -74,8 +74,8 @@ public class MainActivity extends Activity implements LocationListener {
         btnRoll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                rollDices();
-                //createOpenGlView();
+                updateListRolledDices();
+                createOpenGlView();
             }
         });
         Button btnStats = (Button)findViewById(R.id.buttonStats);
@@ -109,6 +109,8 @@ public class MainActivity extends Activity implements LocationListener {
             //sendEmail("Last know location" + lastKnownLocation.toString());
         }catch(SecurityException se){
             Log.v("Location :", "Security Exception");
+        }catch(NullPointerException ne){
+            //rien
         }
 
         textDices.add("dé");
@@ -149,12 +151,11 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     public void createOpenGlView(){
-       /* Intent intent = new Intent(this, OpenGLActivity.class);
-        EditText D6 = (EditText)findViewById(R.id.editTextD6);
-        intent.putExtra("D6", Integer.parseInt(D6.getText().toString()));
-        EditText DX = (EditText)findViewById(R.id.editTextD100);
-        intent.putExtra("DX", Integer.parseInt(DX.getText().toString()));
-        startActivity(intent);*/
+        Intent intent = new Intent(this, OpenGLActivity.class);
+        intent.putExtra("textFaceDices", textFaceDices);
+        intent.putExtra("textNbDices", textNbDices);
+        startActivity(intent);
+        rollDices();
     }
 
 
@@ -182,11 +183,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }*/
 
-    protected void rollDices(){
-        textViewResult.setText("");
-        textSave = "";
-        int total = 0;
-
+    protected void updateListRolledDices(){
         listRolledDices.clear();
         for(int i = 0; i < textDices.size(); i++){
             int nbFaces = Integer.parseInt(textFaceDices.get(i));
@@ -197,6 +194,14 @@ public class MainActivity extends Activity implements LocationListener {
                 listRolledDices.put(nbFaces, nbDices);
             }
         }
+    }
+
+    protected void rollDices(){
+        textViewResult.setText("");
+        textSave = "";
+        int total = 0;
+
+        updateListRolledDices();
 
         for(int nbFaces : listRolledDices.keySet()){
             if(listRolledDices.get(nbFaces) > 0){

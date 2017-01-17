@@ -1,17 +1,27 @@
 package ch.hearc.rollanddice;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 
 import ch.hearc.rollanddice.R;
 import ch.hearc.rollanddice.common.RawResourceReader;
@@ -28,6 +38,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     public static final String TAG = "LessonFourRenderer";
 
     public final Context mActivityContext;
+
+
+    public static float mAccel = 0.0f; // acceleration apart from gravity
 
     /**
      * Store the model matrix. This matrix is used to move models from object space (where each model can be thought
@@ -111,30 +124,33 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     /** This is a handle to our texture data. */
     public int mTextureDataHandle;
 
-    private int nbD6;
-    public Dice6[] tabD6;
+    private Map<Integer, Integer> listRolledDices = new HashMap<Integer, Integer>();
 
-    private int nbDX;
-    public DiceX[] tabDX;
+    private ArrayList<DiceX> tabDX = new ArrayList<DiceX>();
+
+
     /**
      * Initialize the model data.
      */
-    public MyGLRenderer(final Context activityContext, int nbD6, int nbDX)
+    public MyGLRenderer(final Context activityContext, Handler[] pointerHandler, Map<Integer, Integer> listRolledDices)
     {
         mActivityContext = activityContext;
 
-        this.nbD6 = nbD6;
-        tabD6 = new Dice6[nbD6];
+        pointerHandler[0] = new Handler() {
+            public void handleMessage(Message msg) {
+                //Log.i("autre", Integer.toString(msg.arg1));
+                mAccel = msg.arg1;
+                //Log.i("autre", Float.toString(mAccel));
+            }
+        };
 
-        for(int i = 0; i < nbD6; i++){
-            tabD6[i] = new Dice6();
-        }
+        this.listRolledDices = listRolledDices;
 
-        this.nbDX = nbDX;
-        tabDX = new DiceX[nbDX];
-
-        for(int i = 0; i < nbDX; i++){
-            tabDX[i] = new DiceX(8);
+        for(int key : listRolledDices.keySet()){
+            int value = listRolledDices.get(key);
+            for(int i = 0; i < value; i++){
+                tabDX.add(new DiceX(key));
+            }
         }
     }
 
@@ -220,7 +236,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = (nbD6*3)+5;
+        final float far = (Collections.max(listRolledDices.values())*3)+5;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
@@ -232,7 +248,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         // Do a complete rotation every 10 seconds.
         long time = SystemClock.uptimeMillis() % 10000L;
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        //float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        float angleInDegrees = (360.0f / 1000.0f) * ((float)mAccel);
+        //Log.i("autre2",Float.toString(angleInDegrees));
 
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mProgramHandle);
@@ -267,19 +285,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         // Draw some cubes.
 
-
-        for(int i = 0; i < nbD6; i++){
-            Matrix.setIdentityM(mModelMatrix, 0);
-            Matrix.translateM(mModelMatrix, 0, 0.0f, i*4.0f - (nbD6*3)/2.0f, -nbD6 * 3.0f);
-            Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
-            tabD6[i].drawCube(this);
-        }
-
-        for(int i = 0; i < nbDX; i++){
-            Matrix.setIdentityM(mModelMatrix, 0);
-            Matrix.translateM(mModelMatrix, 0, 1.0f, i*4.0f - (nbDX*3)/2.0f, -nbDX * 3.0f);
-            Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
-            tabDX[i].drawCube(this);
+        int j = 0;
+        int k = 0;
+        for(int key : listRolledDices.keySet()){
+            int value = listRolledDices.get(key);
+            for(int i = 0; i < value; i++){
+                Matrix.setIdentityM(mModelMatrix, 0);
+                Matrix.translateM(mModelMatrix, 0, j*2.0f - listRolledDices.size(), i*4.0f - (value*3)/2.0f, -value * 3.0f);
+                Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
+                tabDX.get(k).drawCube(this);
+                k++;
+            }
+            j++;
         }
 
         // Draw a point to indicate the light.

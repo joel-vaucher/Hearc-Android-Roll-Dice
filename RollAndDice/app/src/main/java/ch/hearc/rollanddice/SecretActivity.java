@@ -20,17 +20,17 @@ public class SecretActivity extends AppCompatActivity {
         btnValidate.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-            TextView mail = (TextView)findViewById(R.id.editTextMail);
-            TextView name = (TextView)findViewById(R.id.editTextName);
+                TextView mail = (TextView)findViewById(R.id.editTextMail);
+                TextView name = (TextView)findViewById(R.id.editTextName);
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("mail", mail.getText().toString());
-            editor.putString("name", name.getText().toString());
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("mail", mail.getText().toString());
+                editor.putString("name", name.getText().toString());
 
-            editor.commit();
+                editor.commit();
 
-            finish();
+                finish();
             }
         });
     }

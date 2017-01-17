@@ -93,6 +93,15 @@ public class MainActivity extends Activity implements LocationListener {
             }
         });
 
+        Button btnSecret = (Button)findViewById(R.id.buttonSecret);
+        btnSecret.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent demarre = new Intent(MainActivity.this, SecretActivity.class);
+                startActivity(demarre);
+            }
+        });
+
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);

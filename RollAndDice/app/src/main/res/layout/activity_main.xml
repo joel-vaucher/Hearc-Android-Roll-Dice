@@ -68,4 +68,12 @@
         android:layout_toStartOf="@+id/buttonRoll"
         android:layout_marginEnd="32dp" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/textViewResult"
+        android:id="@+id/buttonSecret"
+        android:background="@android:color/transparent" />
+
 </RelativeLayout>

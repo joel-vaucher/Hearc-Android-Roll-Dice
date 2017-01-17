@@ -124,11 +124,7 @@ public class OpenGLActivity extends Activity {
             mAccelCurrent = (float) Math.sqrt((double) (x*x + y*y + z*z));
             float delta = mAccelCurrent - mAccelLast;
             mAccel = (delta/5) + mAccel; // perform low-cut filter
-            Log.i("trukkk",Float.toString(x));
-            Log.i("trukkk",Float.toString(y));
-            Log.i("trukkk",Float.toString(z));
             if(pointerHandler[0] != null) {
-                Log.i("trukk",pointerHandler[0].toString());
                 Message msg = pointerHandler[0].obtainMessage();
                 msg.arg1 = (int)(mAccel*1000);
 

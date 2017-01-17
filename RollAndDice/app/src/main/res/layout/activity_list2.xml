@@ -14,16 +14,17 @@
 
     <EditText
         android:id="@+id/editText1"
+        android:inputType="numberSigned"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         android:ems="10" >
 
-        <requestFocus />
     </EditText>
 
     <EditText
         android:id="@+id/editText2"
+        android:inputType="numberSigned"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"

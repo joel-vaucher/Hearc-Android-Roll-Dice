@@ -324,6 +324,8 @@ public class MainActivity extends Activity implements LocationListener {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
+
+
             final MainActivity.MyListAdapter.ViewHolder holder;
             if (convertView == null) {
 

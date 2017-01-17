@@ -20,6 +20,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class OpenGLActivity extends Activity {
 
     /** Hold a reference to our GLSurfaceView */
@@ -34,6 +38,9 @@ public class OpenGLActivity extends Activity {
     public Handler accelHandler;
     public Handler[] pointerHandler = new Handler[] {accelHandler};
 
+
+    private Map<Integer, Integer> listRolledDices = new HashMap<Integer, Integer>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -44,11 +51,8 @@ public class OpenGLActivity extends Activity {
         final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
-        int D6 = getIntent().getIntExtra("D6", 0);
-        int DX = getIntent().getIntExtra("DX", 0);
 
-
-        if (supportsEs2 && (D6 != 0 || DX != 0))
+        if (supportsEs2)
         {
             mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
@@ -58,7 +62,9 @@ public class OpenGLActivity extends Activity {
             mGLSV.setEGLContextClientVersion(2);
 
             // Set the renderer to our demo renderer, defined below.
-            mGLR = new MyGLRenderer(this, pointerHandler, D6, DX);
+            updateListRolledDices();
+
+            mGLR = new MyGLRenderer(this, pointerHandler, listRolledDices);
             mGLSV.setRenderer(mGLR);
         }
         else
@@ -69,6 +75,22 @@ public class OpenGLActivity extends Activity {
         }
 
         setContentView(mGLSV);
+    }
+
+    protected void updateListRolledDices(){
+        ArrayList<String> textFaceDices = getIntent().getStringArrayListExtra("textFaceDices");
+        ArrayList<String> textNbDices = getIntent().getStringArrayListExtra("textNbDices");
+
+        listRolledDices.clear();
+        for(int i = 0; i < textFaceDices.size(); i++){
+            int nbFaces = Integer.parseInt(textFaceDices.get(i));
+            int nbDices = Integer.parseInt(textNbDices.get(i));
+            if(listRolledDices.containsKey(nbFaces)){
+                listRolledDices.put(nbFaces, listRolledDices.get(nbFaces) + nbDices);
+            }else{
+                listRolledDices.put(nbFaces, nbDices);
+            }
+        }
     }
 
 
